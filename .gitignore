@@ -1,0 +1,22 @@
+# build output
+/bin/
+/tinykv
+/tinykv.exe
+
+# runtime data
+/data/
+*.log
+*.log.compact
+
+# test & profiling artifacts
+*.test
+*.out
+*.prof
+coverage.*
+
+# editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

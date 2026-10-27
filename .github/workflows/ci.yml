@@ -1,0 +1,41 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: gofmt
+        run: |
+          out=$(gofmt -l .)
+          if [ -n "$out" ]; then
+            echo "These files need gofmt:"
+            echo "$out"
+            exit 1
+          fi
+
+      - name: Test (race)
+        run: go test -race -count=1 ./...
+
+      - name: Build
+        run: CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o bin/tinykv ./cmd/tinykv
+
+      - name: Benchmarks (smoke)
+        run: go test -run '^$' -bench . -benchmem -benchtime=1000x .
